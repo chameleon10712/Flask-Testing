@@ -1,8 +1,15 @@
-python3 -m venv flask
-pip3 install <packages>
+README
+=========
 
-source bin/activate
+Usage
 
-coverage run -m pytest > output
+.. code:: sh
 
-coverage html #generage htmlcov/index.html
+  python3 -m venv flask
+  pip3 install <packages>
+
+  source bin/activate
+
+  coverage run -m pytest > output
+
+  coverage html #generage htmlcov/index.html
