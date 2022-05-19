@@ -2,9 +2,33 @@ import logging
 
 import pytest
 import werkzeug.serving
-from jinja2 import TemplateNotFound
+from jinja2 import TemplateNotFound, TemplateSyntaxError
 
 import flask
+
+
+def test_render_template_TFTFT(app, client):
+    """
+    if dictionary is not empty
+    if templates found
+    if template is malformed (invalid jinja2 syntax)
+    if template conatins jinja syntax
+    if template variable don't match dictionary
+    """
+    @app.route("/")
+    def index():
+        return flask.render_template(
+            "template_invalid_syntax_mismatch.html",
+            var=1
+        )
+
+    try:
+        rv = client.get("/")
+        print('fasle')
+        assert False
+    except TemplateSyntaxError:
+        print('TemplateSyntaxError')
+        assert True
 
 
 def test_context_processing(app, client):
