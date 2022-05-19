@@ -1,0 +1,767 @@
+============================= test session starts ==============================
+platform linux -- Python 3.6.9, pytest-7.0.1, pluggy-1.0.0
+rootdir: /home/oceane/software-testing/flask-sandbox/flask, configfile: setup.cfg
+collected 482 items / 1 skipped / 481 selected
+
+test_appctx.py ..............                                            [  2%]
+test_basic.py .......................................................... [ 14%]
+...............................................F.......................  [ 29%]
+test_blueprints.py ..................................................... [ 40%]
+.F..                                                                     [ 41%]
+test_cli.py .F..........FFFFFFFFFFFFFFFFF...............ss.sF.....       [ 52%]
+test_config.py ...FFF.............                                       [ 56%]
+test_converters.py ..                                                    [ 57%]
+test_group_project2.py ..........                                        [ 59%]
+test_helpers.py ..............................                           [ 65%]
+test_instance_config.py .xXX.......                                      [ 67%]
+test_json.py .................................                           [ 74%]
+test_json_tag.py ..............                                          [ 77%]
+test_logging.py ......                                                   [ 78%]
+test_regression.py .                                                     [ 78%]
+test_reqctx.py .......ss.....                                            [ 81%]
+test_session_interface.py .                                              [ 81%]
+test_signals.py sssssss                                                  [ 83%]
+test_subclassing.py .                                                    [ 83%]
+test_templating.py ................................                      [ 90%]
+test_testing.py ...................s......                               [ 95%]
+test_user_error_handler.py F........                                     [ 97%]
+test_views.py ............                                               [100%]
+
+=================================== FAILURES ===================================
+_______________________ test_routing_redirect_debugging ________________________
+
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x7fa05f09e1d0>
+app = <Flask 'flask_test'>, client = <FlaskClient <Flask 'flask_test'>>
+
+    def test_routing_redirect_debugging(monkeypatch, app, client):
+        @app.route("/foo/", methods=["GET", "POST"])
+        def foo():
+            return "success"
+    
+        app.debug = False
+        rv = client.post("/foo", data={}, follow_redirects=True)
+        assert rv.data == b"success"
+    
+        app.debug = True
+    
+        with client:
+>           rv = client.post("/foo", data={}, follow_redirects=True)
+
+test_basic.py:1734: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+../lib/python3.6/site-packages/werkzeug/test.py:1136: in post
+    return self.open(*args, **kw)
+../lib/python3.6/site-packages/flask/testing.py:238: in open
+    follow_redirects=follow_redirects,
+../lib/python3.6/site-packages/werkzeug/test.py:1076: in open
+    response = self.run_wsgi_app(request.environ, buffered=buffered)
+../lib/python3.6/site-packages/werkzeug/test.py:945: in run_wsgi_app
+    rv = run_wsgi_app(self.application, environ, buffered=buffered)
+../lib/python3.6/site-packages/werkzeug/test.py:1233: in run_wsgi_app
+    app_rv = app(environ, start_response)
+../lib/python3.6/site-packages/flask/app.py:2091: in __call__
+    return self.wsgi_app(environ, start_response)
+../lib/python3.6/site-packages/flask/app.py:2076: in wsgi_app
+    response = self.handle_exception(e)
+../lib/python3.6/site-packages/flask/app.py:2073: in wsgi_app
+    response = self.full_dispatch_request()
+../lib/python3.6/site-packages/flask/app.py:1518: in full_dispatch_request
+    rv = self.handle_user_exception(e)
+../lib/python3.6/site-packages/flask/app.py:1516: in full_dispatch_request
+    rv = self.dispatch_request()
+../lib/python3.6/site-packages/flask/app.py:1492: in dispatch_request
+    self.raise_routing_exception(req)
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = <Flask 'flask_test'>, request = <Request 'http://localhost/foo' [POST]>
+
+    def raise_routing_exception(self, request: Request) -> "te.NoReturn":
+        """Exceptions that are recording during routing are reraised with
+        this method.  During debug we are not reraising redirect requests
+        for non ``GET``, ``HEAD``, or ``OPTIONS`` requests and we're raising
+        a different error instead to help debug situations.
+    
+        :internal:
+        """
+        if (
+            not self.debug
+            or not isinstance(request.routing_exception, RequestRedirect)
+            or request.method in ("GET", "HEAD", "OPTIONS")
+        ):
+            raise request.routing_exception  # type: ignore
+    
+        from .debughelpers import FormDataRoutingRedirect
+    
+>       raise FormDataRoutingRedirect(request)
+E       flask.debughelpers.FormDataRoutingRedirect: b"A request was sent to this URL (http://localhost/foo) but a redirect was issued automatically by the routing system to 'http://localhost/foo/'.  The URL was defined with a trailing slash so Flask will automatically redirect to the URL with the trailing slash if it was accessed without one.  Make sure to directly send your POST-request to this URL since we can't make browsers or HTTP clients redirect with form data reliably or without user interaction.\n\nNote: this exception is only raised in debug mode"
+
+../lib/python3.6/site-packages/flask/app.py:1478: FormDataRoutingRedirect
+_________________________ test_unique_blueprint_names __________________________
+
+app = <Flask 'flask_test'>, client = <FlaskClient <Flask 'flask_test'>>
+
+    def test_unique_blueprint_names(app, client) -> None:
+        bp = flask.Blueprint("bp", __name__)
+        bp2 = flask.Blueprint("bp", __name__)
+    
+        app.register_blueprint(bp)
+    
+        with pytest.raises(ValueError):
+>           app.register_blueprint(bp)  # same bp, same name, error
+
+test_blueprints.py:958: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+../lib/python3.6/site-packages/flask/scaffold.py:57: in wrapper_func
+    return f(self, *args, **kwargs)
+../lib/python3.6/site-packages/flask/app.py:1028: in register_blueprint
+    blueprint.register(self, options)
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = <Blueprint 'bp'>, app = <Flask 'flask_test'>, options = {}
+
+    def register(self, app: "Flask", options: dict) -> None:
+        """Called by :meth:`Flask.register_blueprint` to register all
+        views and callbacks registered on the blueprint with the
+        application. Creates a :class:`.BlueprintSetupState` and calls
+        each :meth:`record` callback with it.
+    
+        :param app: The application this blueprint is being registered
+            with.
+        :param options: Keyword arguments forwarded from
+            :meth:`~Flask.register_blueprint`.
+    
+        .. versionchanged:: 2.0.1
+            Nested blueprints are registered with their dotted name.
+            This allows different blueprints with the same name to be
+            nested at different locations.
+    
+        .. versionchanged:: 2.0.1
+            The ``name`` option can be used to change the (pre-dotted)
+            name the blueprint is registered with. This allows the same
+            blueprint to be registered multiple times with unique names
+            for ``url_for``.
+    
+        .. versionchanged:: 2.0.1
+            Registering the same blueprint with the same name multiple
+            times is deprecated and will become an error in Flask 2.1.
+        """
+        name_prefix = options.get("name_prefix", "")
+        self_name = options.get("name", self.name)
+        name = f"{name_prefix}.{self_name}".lstrip(".")
+    
+        if name in app.blueprints:
+            existing_at = f" '{name}'" if self_name != name else ""
+    
+            if app.blueprints[name] is not self:
+                raise ValueError(
+                    f"The name '{self_name}' is already registered for"
+                    f" a different blueprint{existing_at}. Use 'name='"
+                    " to provide a unique name."
+                )
+            else:
+                import warnings
+    
+                warnings.warn(
+                    f"The name '{self_name}' is already registered for"
+                    f" this blueprint{existing_at}. Use 'name=' to"
+                    " provide a unique name. This will become an error"
+                    " in Flask 2.1.",
+>                   stacklevel=4,
+                )
+E               UserWarning: The name 'bp' is already registered for this blueprint. Use 'name=' to provide a unique name. This will become an error in Flask 2.1.
+
+../lib/python3.6/site-packages/flask/blueprints.py:318: UserWarning
+______________________________ test_find_best_app ______________________________
+
+test_apps = None
+
+    def test_find_best_app(test_apps):
+        class Module:
+            app = Flask("appname")
+    
+>       assert find_best_app(Module) == Module.app
+E       TypeError: find_best_app() missing 1 required positional argument: 'module'
+
+test_cli.py:53: TypeError
+___________________ test_locate_app[cliapp.app-None-testapp] ___________________
+
+test_apps = None, iname = 'cliapp.app', aname = None, result = 'testapp'
+
+    @pytest.mark.parametrize(
+        "iname,aname,result",
+        (
+            ("cliapp.app", None, "testapp"),
+            ("cliapp.app", "testapp", "testapp"),
+            ("cliapp.factory", None, "app"),
+            ("cliapp.factory", "create_app", "app"),
+            ("cliapp.factory", "create_app()", "app"),
+            ("cliapp.factory", 'create_app2("foo", "bar")', "app2_foo_bar"),
+            # trailing comma space
+            ("cliapp.factory", 'create_app2("foo", "bar", )', "app2_foo_bar"),
+            # strip whitespace
+            ("cliapp.factory", " create_app () ", "app"),
+        ),
+    )
+    def test_locate_app(test_apps, iname, aname, result):
+>       assert locate_app(iname, aname).name == result
+E       TypeError: locate_app() missing 1 required positional argument: 'app_name'
+
+test_cli.py:197: TypeError
+_________________ test_locate_app[cliapp.app-testapp-testapp] __________________
+
+test_apps = None, iname = 'cliapp.app', aname = 'testapp', result = 'testapp'
+
+    @pytest.mark.parametrize(
+        "iname,aname,result",
+        (
+            ("cliapp.app", None, "testapp"),
+            ("cliapp.app", "testapp", "testapp"),
+            ("cliapp.factory", None, "app"),
+            ("cliapp.factory", "create_app", "app"),
+            ("cliapp.factory", "create_app()", "app"),
+            ("cliapp.factory", 'create_app2("foo", "bar")', "app2_foo_bar"),
+            # trailing comma space
+            ("cliapp.factory", 'create_app2("foo", "bar", )', "app2_foo_bar"),
+            # strip whitespace
+            ("cliapp.factory", " create_app () ", "app"),
+        ),
+    )
+    def test_locate_app(test_apps, iname, aname, result):
+>       assert locate_app(iname, aname).name == result
+E       TypeError: locate_app() missing 1 required positional argument: 'app_name'
+
+test_cli.py:197: TypeError
+___________________ test_locate_app[cliapp.factory-None-app] ___________________
+
+test_apps = None, iname = 'cliapp.factory', aname = None, result = 'app'
+
+    @pytest.mark.parametrize(
+        "iname,aname,result",
+        (
+            ("cliapp.app", None, "testapp"),
+            ("cliapp.app", "testapp", "testapp"),
+            ("cliapp.factory", None, "app"),
+            ("cliapp.factory", "create_app", "app"),
+            ("cliapp.factory", "create_app()", "app"),
+            ("cliapp.factory", 'create_app2("foo", "bar")', "app2_foo_bar"),
+            # trailing comma space
+            ("cliapp.factory", 'create_app2("foo", "bar", )', "app2_foo_bar"),
+            # strip whitespace
+            ("cliapp.factory", " create_app () ", "app"),
+        ),
+    )
+    def test_locate_app(test_apps, iname, aname, result):
+>       assert locate_app(iname, aname).name == result
+E       TypeError: locate_app() missing 1 required positional argument: 'app_name'
+
+test_cli.py:197: TypeError
+________________ test_locate_app[cliapp.factory-create_app-app] ________________
+
+test_apps = None, iname = 'cliapp.factory', aname = 'create_app', result = 'app'
+
+    @pytest.mark.parametrize(
+        "iname,aname,result",
+        (
+            ("cliapp.app", None, "testapp"),
+            ("cliapp.app", "testapp", "testapp"),
+            ("cliapp.factory", None, "app"),
+            ("cliapp.factory", "create_app", "app"),
+            ("cliapp.factory", "create_app()", "app"),
+            ("cliapp.factory", 'create_app2("foo", "bar")', "app2_foo_bar"),
+            # trailing comma space
+            ("cliapp.factory", 'create_app2("foo", "bar", )', "app2_foo_bar"),
+            # strip whitespace
+            ("cliapp.factory", " create_app () ", "app"),
+        ),
+    )
+    def test_locate_app(test_apps, iname, aname, result):
+>       assert locate_app(iname, aname).name == result
+E       TypeError: locate_app() missing 1 required positional argument: 'app_name'
+
+test_cli.py:197: TypeError
+_______________ test_locate_app[cliapp.factory-create_app()-app] _______________
+
+test_apps = None, iname = 'cliapp.factory', aname = 'create_app()'
+result = 'app'
+
+    @pytest.mark.parametrize(
+        "iname,aname,result",
+        (
+            ("cliapp.app", None, "testapp"),
+            ("cliapp.app", "testapp", "testapp"),
+            ("cliapp.factory", None, "app"),
+            ("cliapp.factory", "create_app", "app"),
+            ("cliapp.factory", "create_app()", "app"),
+            ("cliapp.factory", 'create_app2("foo", "bar")', "app2_foo_bar"),
+            # trailing comma space
+            ("cliapp.factory", 'create_app2("foo", "bar", )', "app2_foo_bar"),
+            # strip whitespace
+            ("cliapp.factory", " create_app () ", "app"),
+        ),
+    )
+    def test_locate_app(test_apps, iname, aname, result):
+>       assert locate_app(iname, aname).name == result
+E       TypeError: locate_app() missing 1 required positional argument: 'app_name'
+
+test_cli.py:197: TypeError
+____ test_locate_app[cliapp.factory-create_app2("foo", "bar")-app2_foo_bar] ____
+
+test_apps = None, iname = 'cliapp.factory', aname = 'create_app2("foo", "bar")'
+result = 'app2_foo_bar'
+
+    @pytest.mark.parametrize(
+        "iname,aname,result",
+        (
+            ("cliapp.app", None, "testapp"),
+            ("cliapp.app", "testapp", "testapp"),
+            ("cliapp.factory", None, "app"),
+            ("cliapp.factory", "create_app", "app"),
+            ("cliapp.factory", "create_app()", "app"),
+            ("cliapp.factory", 'create_app2("foo", "bar")', "app2_foo_bar"),
+            # trailing comma space
+            ("cliapp.factory", 'create_app2("foo", "bar", )', "app2_foo_bar"),
+            # strip whitespace
+            ("cliapp.factory", " create_app () ", "app"),
+        ),
+    )
+    def test_locate_app(test_apps, iname, aname, result):
+>       assert locate_app(iname, aname).name == result
+E       TypeError: locate_app() missing 1 required positional argument: 'app_name'
+
+test_cli.py:197: TypeError
+___ test_locate_app[cliapp.factory-create_app2("foo", "bar", )-app2_foo_bar] ___
+
+test_apps = None, iname = 'cliapp.factory'
+aname = 'create_app2("foo", "bar", )', result = 'app2_foo_bar'
+
+    @pytest.mark.parametrize(
+        "iname,aname,result",
+        (
+            ("cliapp.app", None, "testapp"),
+            ("cliapp.app", "testapp", "testapp"),
+            ("cliapp.factory", None, "app"),
+            ("cliapp.factory", "create_app", "app"),
+            ("cliapp.factory", "create_app()", "app"),
+            ("cliapp.factory", 'create_app2("foo", "bar")', "app2_foo_bar"),
+            # trailing comma space
+            ("cliapp.factory", 'create_app2("foo", "bar", )', "app2_foo_bar"),
+            # strip whitespace
+            ("cliapp.factory", " create_app () ", "app"),
+        ),
+    )
+    def test_locate_app(test_apps, iname, aname, result):
+>       assert locate_app(iname, aname).name == result
+E       TypeError: locate_app() missing 1 required positional argument: 'app_name'
+
+test_cli.py:197: TypeError
+_____________ test_locate_app[cliapp.factory- create_app () -app] ______________
+
+test_apps = None, iname = 'cliapp.factory', aname = ' create_app () '
+result = 'app'
+
+    @pytest.mark.parametrize(
+        "iname,aname,result",
+        (
+            ("cliapp.app", None, "testapp"),
+            ("cliapp.app", "testapp", "testapp"),
+            ("cliapp.factory", None, "app"),
+            ("cliapp.factory", "create_app", "app"),
+            ("cliapp.factory", "create_app()", "app"),
+            ("cliapp.factory", 'create_app2("foo", "bar")', "app2_foo_bar"),
+            # trailing comma space
+            ("cliapp.factory", 'create_app2("foo", "bar", )', "app2_foo_bar"),
+            # strip whitespace
+            ("cliapp.factory", " create_app () ", "app"),
+        ),
+    )
+    def test_locate_app(test_apps, iname, aname, result):
+>       assert locate_app(iname, aname).name == result
+E       TypeError: locate_app() missing 1 required positional argument: 'app_name'
+
+test_cli.py:197: TypeError
+___________________ test_locate_app_raises[notanapp.py-None] ___________________
+
+test_apps = None, iname = 'notanapp.py', aname = None
+
+    @pytest.mark.parametrize(
+        "iname,aname",
+        (
+            ("notanapp.py", None),
+            ("cliapp/app", None),
+            ("cliapp.app", "notanapp"),
+            # not enough arguments
+            ("cliapp.factory", 'create_app2("foo")'),
+            # invalid identifier
+            ("cliapp.factory", "create_app("),
+            # no app returned
+            ("cliapp.factory", "no_app"),
+            # nested import error
+            ("cliapp.importerrorapp", None),
+            # not a Python file
+            ("cliapp.message.txt", None),
+        ),
+    )
+    def test_locate_app_raises(test_apps, iname, aname):
+        with pytest.raises(NoAppException):
+>           locate_app(iname, aname)
+E           TypeError: locate_app() missing 1 required positional argument: 'app_name'
+
+test_cli.py:220: TypeError
+___________________ test_locate_app_raises[cliapp/app-None] ____________________
+
+test_apps = None, iname = 'cliapp/app', aname = None
+
+    @pytest.mark.parametrize(
+        "iname,aname",
+        (
+            ("notanapp.py", None),
+            ("cliapp/app", None),
+            ("cliapp.app", "notanapp"),
+            # not enough arguments
+            ("cliapp.factory", 'create_app2("foo")'),
+            # invalid identifier
+            ("cliapp.factory", "create_app("),
+            # no app returned
+            ("cliapp.factory", "no_app"),
+            # nested import error
+            ("cliapp.importerrorapp", None),
+            # not a Python file
+            ("cliapp.message.txt", None),
+        ),
+    )
+    def test_locate_app_raises(test_apps, iname, aname):
+        with pytest.raises(NoAppException):
+>           locate_app(iname, aname)
+E           TypeError: locate_app() missing 1 required positional argument: 'app_name'
+
+test_cli.py:220: TypeError
+_________________ test_locate_app_raises[cliapp.app-notanapp] __________________
+
+test_apps = None, iname = 'cliapp.app', aname = 'notanapp'
+
+    @pytest.mark.parametrize(
+        "iname,aname",
+        (
+            ("notanapp.py", None),
+            ("cliapp/app", None),
+            ("cliapp.app", "notanapp"),
+            # not enough arguments
+            ("cliapp.factory", 'create_app2("foo")'),
+            # invalid identifier
+            ("cliapp.factory", "create_app("),
+            # no app returned
+            ("cliapp.factory", "no_app"),
+            # nested import error
+            ("cliapp.importerrorapp", None),
+            # not a Python file
+            ("cliapp.message.txt", None),
+        ),
+    )
+    def test_locate_app_raises(test_apps, iname, aname):
+        with pytest.raises(NoAppException):
+>           locate_app(iname, aname)
+E           TypeError: locate_app() missing 1 required positional argument: 'app_name'
+
+test_cli.py:220: TypeError
+__________ test_locate_app_raises[cliapp.factory-create_app2("foo")] ___________
+
+test_apps = None, iname = 'cliapp.factory', aname = 'create_app2("foo")'
+
+    @pytest.mark.parametrize(
+        "iname,aname",
+        (
+            ("notanapp.py", None),
+            ("cliapp/app", None),
+            ("cliapp.app", "notanapp"),
+            # not enough arguments
+            ("cliapp.factory", 'create_app2("foo")'),
+            # invalid identifier
+            ("cliapp.factory", "create_app("),
+            # no app returned
+            ("cliapp.factory", "no_app"),
+            # nested import error
+            ("cliapp.importerrorapp", None),
+            # not a Python file
+            ("cliapp.message.txt", None),
+        ),
+    )
+    def test_locate_app_raises(test_apps, iname, aname):
+        with pytest.raises(NoAppException):
+>           locate_app(iname, aname)
+E           TypeError: locate_app() missing 1 required positional argument: 'app_name'
+
+test_cli.py:220: TypeError
+______________ test_locate_app_raises[cliapp.factory-create_app(] ______________
+
+test_apps = None, iname = 'cliapp.factory', aname = 'create_app('
+
+    @pytest.mark.parametrize(
+        "iname,aname",
+        (
+            ("notanapp.py", None),
+            ("cliapp/app", None),
+            ("cliapp.app", "notanapp"),
+            # not enough arguments
+            ("cliapp.factory", 'create_app2("foo")'),
+            # invalid identifier
+            ("cliapp.factory", "create_app("),
+            # no app returned
+            ("cliapp.factory", "no_app"),
+            # nested import error
+            ("cliapp.importerrorapp", None),
+            # not a Python file
+            ("cliapp.message.txt", None),
+        ),
+    )
+    def test_locate_app_raises(test_apps, iname, aname):
+        with pytest.raises(NoAppException):
+>           locate_app(iname, aname)
+E           TypeError: locate_app() missing 1 required positional argument: 'app_name'
+
+test_cli.py:220: TypeError
+________________ test_locate_app_raises[cliapp.factory-no_app] _________________
+
+test_apps = None, iname = 'cliapp.factory', aname = 'no_app'
+
+    @pytest.mark.parametrize(
+        "iname,aname",
+        (
+            ("notanapp.py", None),
+            ("cliapp/app", None),
+            ("cliapp.app", "notanapp"),
+            # not enough arguments
+            ("cliapp.factory", 'create_app2("foo")'),
+            # invalid identifier
+            ("cliapp.factory", "create_app("),
+            # no app returned
+            ("cliapp.factory", "no_app"),
+            # nested import error
+            ("cliapp.importerrorapp", None),
+            # not a Python file
+            ("cliapp.message.txt", None),
+        ),
+    )
+    def test_locate_app_raises(test_apps, iname, aname):
+        with pytest.raises(NoAppException):
+>           locate_app(iname, aname)
+E           TypeError: locate_app() missing 1 required positional argument: 'app_name'
+
+test_cli.py:220: TypeError
+______________ test_locate_app_raises[cliapp.importerrorapp-None] ______________
+
+test_apps = None, iname = 'cliapp.importerrorapp', aname = None
+
+    @pytest.mark.parametrize(
+        "iname,aname",
+        (
+            ("notanapp.py", None),
+            ("cliapp/app", None),
+            ("cliapp.app", "notanapp"),
+            # not enough arguments
+            ("cliapp.factory", 'create_app2("foo")'),
+            # invalid identifier
+            ("cliapp.factory", "create_app("),
+            # no app returned
+            ("cliapp.factory", "no_app"),
+            # nested import error
+            ("cliapp.importerrorapp", None),
+            # not a Python file
+            ("cliapp.message.txt", None),
+        ),
+    )
+    def test_locate_app_raises(test_apps, iname, aname):
+        with pytest.raises(NoAppException):
+>           locate_app(iname, aname)
+E           TypeError: locate_app() missing 1 required positional argument: 'app_name'
+
+test_cli.py:220: TypeError
+_______________ test_locate_app_raises[cliapp.message.txt-None] ________________
+
+test_apps = None, iname = 'cliapp.message.txt', aname = None
+
+    @pytest.mark.parametrize(
+        "iname,aname",
+        (
+            ("notanapp.py", None),
+            ("cliapp/app", None),
+            ("cliapp.app", "notanapp"),
+            # not enough arguments
+            ("cliapp.factory", 'create_app2("foo")'),
+            # invalid identifier
+            ("cliapp.factory", "create_app("),
+            # no app returned
+            ("cliapp.factory", "no_app"),
+            # nested import error
+            ("cliapp.importerrorapp", None),
+            # not a Python file
+            ("cliapp.message.txt", None),
+        ),
+    )
+    def test_locate_app_raises(test_apps, iname, aname):
+        with pytest.raises(NoAppException):
+>           locate_app(iname, aname)
+E           TypeError: locate_app() missing 1 required positional argument: 'app_name'
+
+test_cli.py:220: TypeError
+________________________ test_locate_app_suppress_raise ________________________
+
+test_apps = None
+
+    def test_locate_app_suppress_raise(test_apps):
+>       app = locate_app("notanapp.py", None, raise_if_not_found=False)
+E       TypeError: locate_app() missing 1 required positional argument: 'app_name'
+
+test_cli.py:224: TypeError
+______________________________ test_run_cert_path ______________________________
+
+    def test_run_cert_path():
+        # no key
+        with pytest.raises(click.BadParameter):
+            run_command.make_context("run", ["--cert", __file__])
+    
+        # no cert
+        with pytest.raises(click.BadParameter):
+            run_command.make_context("run", ["--key", __file__])
+    
+        # cert specified first
+        ctx = run_command.make_context("run", ["--cert", __file__, "--key", __file__])
+        assert ctx.params["cert"] == (__file__, __file__)
+    
+        # key specified first
+>       ctx = run_command.make_context("run", ["--key", __file__, "--cert", __file__])
+
+test_cli.py:561: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+../lib/python3.6/site-packages/click/core.py:914: in make_context
+    self.parse_args(ctx, args)
+../lib/python3.6/site-packages/click/core.py:1370: in parse_args
+    value, args = param.handle_parse_result(ctx, opts, args)
+../lib/python3.6/site-packages/click/core.py:2347: in handle_parse_result
+    value = self.process_value(ctx, value)
+../lib/python3.6/site-packages/click/core.py:2309: in process_value
+    value = self.callback(ctx, self, value)
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+ctx = <click.core.Context object at 0x7fa05dafa128>, param = <Option key>
+value = '/home/oceane/software-testing/flask-sandbox/flask/tests/test_cli.py'
+
+    def _validate_key(ctx, param, value):
+        """The ``--key`` option must be specified when ``--cert`` is a file.
+        Modifies the ``cert`` param to be a ``(cert, key)`` pair if needed.
+        """
+        cert = ctx.params.get("cert")
+        is_adhoc = cert == "adhoc"
+        is_context = ssl and isinstance(cert, ssl.SSLContext)
+    
+        if value is not None:
+            if is_adhoc:
+                raise click.BadParameter(
+                    'When "--cert" is "adhoc", "--key" is not used.', ctx, param
+                )
+    
+            if is_context:
+                raise click.BadParameter(
+                    'When "--cert" is an SSLContext object, "--key is not used.', ctx, param
+                )
+    
+            if not cert:
+>               raise click.BadParameter('"--cert" must also be specified.', ctx, param)
+E               click.exceptions.BadParameter: "--cert" must also be specified.
+
+../lib/python3.6/site-packages/flask/cli.py:761: BadParameter
+____________________________ test_from_prefixed_env ____________________________
+
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x7fa05dafa710>
+
+    def test_from_prefixed_env(monkeypatch):
+        monkeypatch.setenv("FLASK_STRING", "value")
+        monkeypatch.setenv("FLASK_BOOL", "true")
+        monkeypatch.setenv("FLASK_INT", "1")
+        monkeypatch.setenv("FLASK_FLOAT", "1.2")
+        monkeypatch.setenv("FLASK_LIST", "[1, 2]")
+        monkeypatch.setenv("FLASK_DICT", '{"k": "v"}')
+        monkeypatch.setenv("NOT_FLASK_OTHER", "other")
+    
+        app = flask.Flask(__name__)
+>       app.config.from_prefixed_env()
+E       AttributeError: 'Config' object has no attribute 'from_prefixed_env'
+
+test_config.py:51: AttributeError
+_____________________ test_from_prefixed_env_custom_prefix _____________________
+
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x7fa05d968710>
+
+    def test_from_prefixed_env_custom_prefix(monkeypatch):
+        monkeypatch.setenv("FLASK_A", "a")
+        monkeypatch.setenv("NOT_FLASK_A", "b")
+    
+        app = flask.Flask(__name__)
+>       app.config.from_prefixed_env("NOT_FLASK")
+E       AttributeError: 'Config' object has no attribute 'from_prefixed_env'
+
+test_config.py:67: AttributeError
+________________________ test_from_prefixed_env_nested _________________________
+
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x7fa05d7b4cc0>
+
+    def test_from_prefixed_env_nested(monkeypatch):
+        monkeypatch.setenv("FLASK_EXIST__ok", "other")
+        monkeypatch.setenv("FLASK_EXIST__inner__ik", "2")
+        monkeypatch.setenv("FLASK_EXIST__new__more", '{"k": false}')
+        monkeypatch.setenv("FLASK_NEW__K", "v")
+    
+        app = flask.Flask(__name__)
+        app.config["EXIST"] = {"ok": "value", "flag": True, "inner": {"ik": 1}}
+>       app.config.from_prefixed_env()
+E       AttributeError: 'Config' object has no attribute 'from_prefixed_env'
+
+test_config.py:80: AttributeError
+_________________________ test_error_handler_no_match __________________________
+
+app = <Flask 'flask_test'>, client = <FlaskClient <Flask 'flask_test'>>
+
+    def test_error_handler_no_match(app, client):
+        class CustomException(Exception):
+            pass
+    
+        @app.errorhandler(CustomException)
+        def custom_exception_handler(e):
+            assert isinstance(e, CustomException)
+            return "custom"
+    
+        with pytest.raises(TypeError) as exc_info:
+            app.register_error_handler(CustomException(), None)
+    
+>       assert "CustomException() is an instance, not a class." in str(exc_info.value)
+E       AssertionError: assert 'CustomException() is an instance, not a class.' in 'issubclass() arg 1 must be a class'
+E        +  where 'issubclass() arg 1 must be a class' = str(TypeError('issubclass() arg 1 must be a class',))
+E        +    where TypeError('issubclass() arg 1 must be a class',) = <ExceptionInfo TypeError('issubclass() arg 1 must be a class',) tblen=4>.value
+
+test_user_error_handler.py:22: AssertionError
+=========================== short test summary info ============================
+FAILED test_basic.py::test_routing_redirect_debugging - flask.debughelpers.Fo...
+FAILED test_blueprints.py::test_unique_blueprint_names - UserWarning: The nam...
+FAILED test_cli.py::test_find_best_app - TypeError: find_best_app() missing 1...
+FAILED test_cli.py::test_locate_app[cliapp.app-None-testapp] - TypeError: loc...
+FAILED test_cli.py::test_locate_app[cliapp.app-testapp-testapp] - TypeError: ...
+FAILED test_cli.py::test_locate_app[cliapp.factory-None-app] - TypeError: loc...
+FAILED test_cli.py::test_locate_app[cliapp.factory-create_app-app] - TypeErro...
+FAILED test_cli.py::test_locate_app[cliapp.factory-create_app()-app] - TypeEr...
+FAILED test_cli.py::test_locate_app[cliapp.factory-create_app2("foo", "bar")-app2_foo_bar]
+FAILED test_cli.py::test_locate_app[cliapp.factory-create_app2("foo", "bar", )-app2_foo_bar]
+FAILED test_cli.py::test_locate_app[cliapp.factory- create_app () -app] - Typ...
+FAILED test_cli.py::test_locate_app_raises[notanapp.py-None] - TypeError: loc...
+FAILED test_cli.py::test_locate_app_raises[cliapp/app-None] - TypeError: loca...
+FAILED test_cli.py::test_locate_app_raises[cliapp.app-notanapp] - TypeError: ...
+FAILED test_cli.py::test_locate_app_raises[cliapp.factory-create_app2("foo")]
+FAILED test_cli.py::test_locate_app_raises[cliapp.factory-create_app(] - Type...
+FAILED test_cli.py::test_locate_app_raises[cliapp.factory-no_app] - TypeError...
+FAILED test_cli.py::test_locate_app_raises[cliapp.importerrorapp-None] - Type...
+FAILED test_cli.py::test_locate_app_raises[cliapp.message.txt-None] - TypeErr...
+FAILED test_cli.py::test_locate_app_suppress_raise - TypeError: locate_app() ...
+FAILED test_cli.py::test_run_cert_path - click.exceptions.BadParameter: "--ce...
+FAILED test_config.py::test_from_prefixed_env - AttributeError: 'Config' obje...
+FAILED test_config.py::test_from_prefixed_env_custom_prefix - AttributeError:...
+FAILED test_config.py::test_from_prefixed_env_nested - AttributeError: 'Confi...
+FAILED test_user_error_handler.py::test_error_handler_no_match - AssertionErr...
+======= 25 failed, 441 passed, 14 skipped, 1 xfailed, 2 xpassed in 2.98s =======
