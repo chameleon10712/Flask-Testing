@@ -1,6 +1,13 @@
 ST-2022 Group Project
 ========================
 
+- v2.0
+
+  - `spec <https://docs.google.com/spreadsheets/d/1QADsETXS6YzqMmRBtplheqgtbMsZcRDUV6zPW56OfkM/edit?usp=sharing>`_
+  - group project3, using PC, CC, CACC
+  - API: ``get_root_path()``
+
+
 - v1.0
 
   - `spec <https://docs.google.com/spreadsheets/d/1CWzXtN7biDFjhNZDuiSEettylRWZJQOEwtPNYqtCsYQ/edit?usp=sharing>`_
