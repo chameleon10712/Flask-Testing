@@ -5,7 +5,7 @@ ST-2022 Group Project
 
   - `spec <https://docs.google.com/spreadsheets/d/1QADsETXS6YzqMmRBtplheqgtbMsZcRDUV6zPW56OfkM/edit?usp=sharing>`_
   - group project3, using PC, CC, CACC
-  - API: ``get_root_path()``
+  - API: `get_root_path() <https://github.com/chameleon10712/Flask-Testing/blob/main/src/flask/helpers.py#L680>`_
 
 
 - v1.0
