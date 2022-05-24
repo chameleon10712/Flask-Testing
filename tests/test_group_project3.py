@@ -27,15 +27,29 @@ def test_get_root_path_mod_CACC_TTT():
 def test_get_root_path_mod_CACC_FFF():
     assert os.getcwd() == get_root_path("")
 
+#yan
+def test_get_root_path_import_name_PC_TF():
+    assert os.getcwd() == get_root_path("")
+
+def test_get_root_path_import_name_PC_FF():
+    assert os.getcwd()== get_root_path("__init__")
+
+def test_get_root_path_import_name_CC_TF():
+    assert os.getcwd() == get_root_path("")
+
+def test_get_root_path_import_name_CC_FT():
+    _main = os.path.abspath(str(sys.modules['__main__'].__file__))
+    assert os.path.dirname(_main) == get_root_path("__main__")
+    
 #oceane
-def test_get_root_path_import_name_CACC_TTT():
+def test_get_root_path_import_name_CACC_TFT():
     assert os.getcwd() == get_root_path("module_not_exists")
 
-def test_get_root_path_import_name_CACC_TFT():
+def test_get_root_path_import_name_CACC_FTT():
     _main = os.path.abspath(str(sys.modules['__main__'].__file__))
     assert os.path.dirname(_main)== get_root_path("__main__")
 
-def test_get_root_path_import_name_CACC_TFT():
+def test_get_root_path_import_name_CACC_FFF():
     assert os.getcwd()== get_root_path("__init__")
 
 
