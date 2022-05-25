@@ -24,6 +24,11 @@ def test_get_root_path_mod_CACC_TTT():
     mod = sys.modules.get("pytest")
     assert os.path.dirname(os.path.abspath(mod.__file__)) == get_root_path("pytest")
     
+
+def test_get_root_path_mod_CACC_TTF():
+    assert os.getcwd() == get_root_path("static")#just a folder not package, no __init__.py
+    
+
 def test_get_root_path_mod_CACC_FFF():
     assert os.getcwd() == get_root_path("")
 
