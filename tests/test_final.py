@@ -10,10 +10,40 @@ from flask.helpers import get_env
 
 class TestSendfile:
     def test_my_send_file(self, app, req_ctx):
+        # testcase 6 - .jpeg
+        rv = flask.send_file("static/test.jpeg")
+        assert rv.direct_passthrough
+        assert rv.mimetype == "image/jpeg"
+        rv.close()
+
+        # testcase 7 - .png
+        rv = flask.send_file("static/test.png")
+        assert rv.direct_passthrough
+        assert rv.mimetype == "image/png"
+        rv.close()
+
+        # testcase 8 - .svg
+        rv = flask.send_file("static/test.svg")
+        assert rv.direct_passthrough
+        assert rv.mimetype == "image/svg+xml"
+        rv.close()
+
+        # testcase 9 - .js
+        rv = flask.send_file("static/test.js")
+        assert rv.direct_passthrough
+        assert rv.mimetype == "application/javascript"
+        rv.close()
+
+        # testcase 10 - .mp3
+        rv = flask.send_file("static/test.mp3")
+        assert rv.direct_passthrough
+        assert rv.mimetype == "audio/mpeg"
+        rv.close()
+
+        # testcase 11 - .pdf
         rv = flask.send_file("static/test.pdf")
         assert rv.direct_passthrough
         assert rv.mimetype == "application/pdf"
-
         rv.close()
 
     def test_send_file(self, app, req_ctx):
