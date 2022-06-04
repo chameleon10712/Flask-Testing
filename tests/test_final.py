@@ -46,6 +46,54 @@ class TestSendfile:
         assert rv.mimetype == "application/pdf"
         rv.close()
 
+        # testcase 12 - .mp4
+        rv = flask.send_file("static/test.mp4")
+        assert rv.direct_passthrough
+        assert rv.mimetype == "video/mp4"
+        rv.close()
+
+        # testcase 13 - .tar
+        rv = flask.send_file("static/test.tar")
+        assert rv.direct_passthrough
+        assert rv.mimetype == "application/x-tar"
+        rv.close()
+
+        # testcase 14 - .xml
+        rv = flask.send_file("static/test.xml")
+        assert rv.direct_passthrough
+        assert rv.mimetype == "application/xml"
+        rv.close()
+
+        # testcase 15 - .zip
+        rv = flask.send_file("static/test.zip")
+        assert rv.direct_passthrough
+        assert rv.mimetype == "application/zip"
+        rv.close()
+
+        # testcase 16 - .rar
+        rv = flask.send_file("static/test.rar")
+        assert rv.direct_passthrough
+        assert rv.mimetype == "application/rar"
+        rv.close()
+
+        # testcase 17 - .bin
+        rv = flask.send_file("static/test.bin")
+        assert rv.direct_passthrough
+        assert rv.mimetype == "application/octet-stream"
+        rv.close()
+
+        # testcase 18 - .doc
+        rv = flask.send_file("static/test.doc")
+        assert rv.direct_passthrough
+        assert rv.mimetype == "application/msword"
+        rv.close()
+
+        # testcase 19 - .ppt
+        rv = flask.send_file("static/test.ppt")
+        assert rv.direct_passthrough
+        assert rv.mimetype == "application/vnd.ms-powerpoint"
+        rv.close()
+
     def test_send_file(self, app, req_ctx):
         rv = flask.send_file("static/index.html")
         assert rv.direct_passthrough
