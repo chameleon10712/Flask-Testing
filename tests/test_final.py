@@ -7,6 +7,81 @@ import flask
 from flask.helpers import get_debug_flag
 from flask.helpers import get_env
 from flask.helpers import is_ip
+from werkzeug.routing import BuildError
+
+
+class TestUrlFor:
+    def test_TTTTTTT(self, app, req_ctx):
+        @app.route("/hello", methods=["POST"])
+        def hello():
+            return "42"
+
+        assert (
+            flask.url_for("hello", _external=True,
+                          _method="POST", _scheme="https", _anchor="contact")
+            == "https://localhost/hello#contact"
+        )
+
+        assert (
+            flask.url_for("hello", name="test_x", _external=True,
+                          _method="POST", _scheme="https", _anchor="contact")
+            == "https://localhost/hello?name=test_x#contact"
+        )
+
+    def test_FTTTTTT(self, app, req_ctx):
+        try:
+            flask.url_for("www", _external=True,
+                          _method="POST", _scheme="https", _anchor="contact")
+        except BuildError:
+            assert True
+        else:
+            assert False
+
+        try:
+            flask.url_for("www", name="test_x", _external=True,
+                          _method="POST", _scheme="https", _anchor="contact")
+        except BuildError:
+            assert True
+        else:
+            assert False
+
+    def test_TFTTTTT(self, app, req_ctx):
+        @app.route("/hello", methods=["POST"])
+        def hello():
+            return "42"
+
+        try:
+            flask.url_for("hello", _external=False,
+                          _method="POST", _scheme="https", _anchor="contact")
+        except ValueError:
+            assert True
+        else:
+            assert False
+
+        try:
+            flask.url_for("hello", name="test_x", _external=False,
+                          _method="POST", _scheme="https", _anchor="contact")
+        except ValueError:
+            assert True
+        else:
+            assert False
+
+    def test_TTFTTTT(self, app, req_ctx):
+        @app.route("/hello", methods=["POST"])
+        def hello():
+            return "42"
+
+        assert (
+            flask.url_for("hello", _external=True,
+                          _method="POST", _scheme=None, _anchor="contact")
+            == "http://localhost/hello#contact"
+        )
+
+        assert (
+            flask.url_for("hello", name="test_x", _external=True,
+                          _method="POST", _scheme=None, _anchor="contact")
+            == "http://localhost/hello?name=test_x#contact"
+        )
 
 
 class TestIsIp:
