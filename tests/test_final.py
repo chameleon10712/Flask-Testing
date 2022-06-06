@@ -6,7 +6,8 @@ import pytest
 import flask
 from flask.helpers import get_debug_flag
 from flask.helpers import get_env
-
+import werkzeug
+from flask.views import MethodView
 
 class TestSendfile:
     def test_my_send_file(self, app, req_ctx):
@@ -173,4 +174,80 @@ class TestHelpers:
             assert rv.status_code == 200
             assert rv.mimetype == "text/html"
 
+class TestUrlFor:
+    def test_url_for_testcase5(self, app, req_ctx):
+        @app.route("/")
+        class myHello(MethodView):
+            def post(self):
+                return "hello"
 
+        hello = myHello.as_view("hello")
+        app.add_url_rule("/hello/", methods = ["POST"], view_func = hello)
+        pytest.raises(werkzeug.routing.BuildError, flask.url_for, "hello", _external=True, _scheme="http",_method = "GET", _anchor="contact")
+
+    def test_url_for_testcase6(self, app, req_ctx):
+        @app.route("/")
+        class myHello(MethodView):
+            def get(self):
+                return "hello"
+        hello = myHello.as_view("hello")
+        app.add_url_rule("/hello/", methods = ["GET"], view_func = hello)
+
+        assert(flask.url_for("hello", _external = True, _scheme = "http", _method = "GET", _anchor = None) == "http://localhost/hello/")
+    
+    def test_url_for_testcase9(self, app, req_ctx):
+        @app.route("/")
+        class myHello(MethodView):
+            def post(self):
+                return "hello"
+
+        hello = myHello.as_view("hello")
+        app.add_url_rule("/hello/", methods = ["POST"], view_func = hello)
+        assert(flask.url_for("hello", name = "test x",_method = "POST") == "/hello/?name=test+x")
+    
+    def test_url_for_testcase10(self, app, req_ctx):
+        @app.route("/")
+        class myHello(MethodView):
+            def post(self):
+                return "hello"
+        hello = myHello.as_view("hello")
+        app.add_url_rule("/hello/", methods = ["POST"], view_func = hello)
+        assert(flask.url_for("hello", name = "test x",_external = True) == "http://localhost/hello/?name=test+x")
+
+    def test_url_for_testcase11(self, app, req_ctx):
+        @app.route("/")
+        class myHello(MethodView):
+            def post(self):
+                return "hello"
+        hello = myHello.as_view("hello")
+        app.add_url_rule("/hello/", methods = ["POST"], view_func = hello)
+        assert(flask.url_for("hello", name = "test x",_external = True, _method="POST", _anchor="contact") == "http://localhost/hello/?name=test+x#contact")
+    
+    def test_url_for_testcase12(self, app, req_ctx):
+        @app.route("/")
+        class myHello(MethodView):
+            def post(self):
+                return "hello"
+        hello = myHello.as_view("hello")
+        app.add_url_rule("/hello/", methods = ["POST"], view_func = hello)
+        assert(flask.url_for("hello", name = "test x", _method="POST", _anchor="contact") == "/hello/?name=test+x#contact")
+
+    def test_url_for_testcase18(self, app, req_ctx):
+        @app.route("/")
+        class myHello(MethodView):
+            def post(self):
+                return "hello"
+
+        hello = myHello.as_view("hello")
+        app.add_url_rule("/hello/", methods = ["POST"], view_func = hello)
+        pytest.raises(werkzeug.routing.BuildError, flask.url_for, "hello",name = "text x", _external=True, _scheme="http",_method = "GET", _anchor="contact")
+
+    def test_url_for_testcase19(self, app, req_ctx):
+        @app.route("/")
+        class myHello(MethodView):
+            def get(self):
+                return "hello"
+        hello = myHello.as_view("hello")
+        app.add_url_rule("/hello/", methods = ["GET"], view_func = hello)
+
+        assert(flask.url_for("hello",name = "text x", _external = True, _scheme = "http", _method = "GET", _anchor = None) == "http://localhost/hello/?name=text+x")
