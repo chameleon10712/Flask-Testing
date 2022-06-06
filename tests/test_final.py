@@ -4,8 +4,50 @@ import os
 import pytest
 
 import flask
+from flask.views import MethodView
 from flask.helpers import get_debug_flag
 from flask.helpers import get_env
+
+class TestUrlFor:
+
+    def test_case_7(self, app):
+        app.config['SERVER_NAME'] = "localhost"
+        @app.route("/hello", methods=['POST'])
+        def hello():
+            return "42"
+
+        pytest.raises(RuntimeError, flask.url_for, "hello", _scheme="https", _method="POST", _anchor="contact", _external=True)
+
+    def test_case_8(self, app):
+        @app.route("/hello", methods=['POST'])
+        def hello():
+            return "42"
+
+        pytest.raises(RuntimeError, flask.url_for, "hello", _scheme="https", _method="POST", _anchor="contact", _external=True)
+
+    def test_case_13(self, app, req_ctx):
+        class HelloView(MethodView):
+            def get(self, id=None):
+                return "Hello"
+
+        hello = HelloView.as_view("hello")
+        app.add_url_rule("/hello/", methods=["GET"], view_func=hello)
+        assert flask.url_for("hello") == "/hello/"
+
+    def test_case_20(self, app):
+        
+        app.config['SERVER_NAME'] = "localhost"
+        @app.route("/hello", methods=['POST'])
+        def hello():
+            return "42"
+
+        pytest.raises(RuntimeError, flask.url_for, "hello", _scheme="https", _method="POST", _anchor="contact", _external=True, _name="test x")
+
+    def test_case_21(self, app):
+        @app.route("/hello", methods=['POST'])
+        def hello():
+            return "42"
+        pytest.raises(RuntimeError, flask.url_for, "hello", _scheme="https", _method="POST", _anchor="contact", _external=True, _name="test x")
 
 
 class TestSendfile:
