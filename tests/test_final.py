@@ -6,11 +6,218 @@ import pytest
 import flask
 from flask.helpers import get_debug_flag
 from flask.helpers import get_env
-import werkzeug
-from flask.views import MethodView
+from flask.helpers import is_ip
+from werkzeug.routing import BuildError
+
+
+class TestUrlFor:
+    def test_TTTTTTT(self, app, req_ctx):
+        @app.route("/hello", methods=["POST"])
+        def hello():
+            return "42"
+
+        assert (
+            flask.url_for("hello", _external=True,
+                          _method="POST", _scheme="https", _anchor="contact")
+            == "https://localhost/hello#contact"
+        )
+
+        assert (
+            flask.url_for("hello", name="test_x", _external=True,
+                          _method="POST", _scheme="https", _anchor="contact")
+            == "https://localhost/hello?name=test_x#contact"
+        )
+
+    def test_FTTTTTT(self, app, req_ctx):
+        try:
+            flask.url_for("www", _external=True,
+                          _method="POST", _scheme="https", _anchor="contact")
+        except BuildError:
+            assert True
+        else:
+            assert False
+
+        try:
+            flask.url_for("www", name="test_x", _external=True,
+                          _method="POST", _scheme="https", _anchor="contact")
+        except BuildError:
+            assert True
+        else:
+            assert False
+
+    def test_TFTTTTT(self, app, req_ctx):
+        @app.route("/hello", methods=["POST"])
+        def hello():
+            return "42"
+
+        try:
+            flask.url_for("hello", _external=False,
+                          _method="POST", _scheme="https", _anchor="contact")
+        except ValueError:
+            assert True
+        else:
+            assert False
+
+        try:
+            flask.url_for("hello", name="test_x", _external=False,
+                          _method="POST", _scheme="https", _anchor="contact")
+        except ValueError:
+            assert True
+        else:
+            assert False
+
+    def test_TTFTTTT(self, app, req_ctx):
+        @app.route("/hello", methods=["POST"])
+        def hello():
+            return "42"
+
+        assert (
+            flask.url_for("hello", _external=True,
+                          _method="POST", _scheme=None, _anchor="contact")
+            == "http://localhost/hello#contact"
+        )
+
+        assert (
+            flask.url_for("hello", name="test_x", _external=True,
+                          _method="POST", _scheme=None, _anchor="contact")
+            == "http://localhost/hello?name=test_x#contact"
+        )
+    def test_url_for_testcaseTTTFTTT(self, app, req_ctx):
+        @app.route("/hello", methods = ["POST"])
+        def hello():
+            return "42"
+        try:
+            flask.url_for("hello", _external=True,
+                          _method="GET", _scheme="http", _anchor="contact")
+        except werkzeug.routing.BuildError:
+            assert True
+        else:
+            assert False
+
+        try:
+            flask.url_for("hello", name="test_x",  _external=True,
+                          _method="GET", _scheme="http", _anchor="contact")
+        except werkzeug.routing.BuildError:
+            assert True
+        else:
+            assert False
+
+    def test_url_for_testcaseTTTTFTT(self, app, req_ctx):
+        @app.route("/hello", methods = ["POST"])
+        def hello():
+            return "42"
+        assert(
+            flask.url_for("hello", _external=True,
+                          _method="POST", _scheme="http", _anchor=None)
+            == "http://localhost/hello"
+        )
+
+        assert(
+            flask.url_for("hello", name = "test_x", _external=True,
+                          _method="POST", _scheme="http", _anchor=None)
+            == "http://localhost/hello?name=test_x"
+        )
+
+    def test_url_for_testcase9(self, app, req_ctx):
+        @app.route("/hello", methods = ["POST"])
+        def hello():
+            return "42"
+        assert(
+            flask.url_for("hello", name = "test_x",
+                          _method="POST")
+            == "/hello?name=test_x"
+        )
+    
+    def test_url_for_testcase10(self, app, req_ctx):
+        @app.route("/hello", methods = ["POST"])
+        def hello():
+            return "42"
+        assert(
+            flask.url_for("hello", _external = True,
+                          name = "test_x")
+            == "http://localhost/hello?name=test_x"
+        )
+
+    def test_url_for_testcase11(self, app, req_ctx):
+        @app.route("/hello", methods = ["POST"])
+        def hello():
+            return "42"
+        assert(
+            flask.url_for("hello", _external = True,
+                          name = "test_x", _method = "POST", _anchor = "contact")
+            == "http://localhost/hello?name=test_x#contact"
+        )
+    
+    def test_url_for_testcase12(self, app, req_ctx):
+        @app.route("/hello", methods = ["POST"])
+        def hello():
+            return "42"
+        assert(
+            flask.url_for("hello",
+                          name = "test_x", _method = "POST", _anchor = "contact")
+            == "/hello?name=test_x#contact"
+        )
+
+class TestIsIp:
+    def test_FTF(self):
+        """
+        if ip is in valid format
+        if ip is in valid ipv4 format
+        if ip is not in valid ipv6 format
+        """
+        assert is_ip("127.0.0.1") == True
+
+    def test_FFT(self):
+        """
+        if ip is in valid format
+        if ip is not in valid ipv4 format
+        if ip is in valid ipv6 format
+        """
+        assert is_ip("2001:db8:3333:4444:5555:6666:7777:8888") == True
+
+    def test_TFF(self):
+        """
+        if ip is in invalid format
+        if ip is not in valid ipv4 format
+        if ip is not in valid ipv6 format
+        """
+        assert is_ip("256.0.0.0") == False
+        assert is_ip("56FE::2159:5BBC::6594") == False
+        assert is_ip("123:0.1:500") == False
+
 
 class TestSendfile:
     def test_my_send_file(self, app, req_ctx):
+
+        # testcase 1 - .html
+        rv = flask.send_file("static/test.html")
+        assert rv.direct_passthrough
+        assert rv.mimetype == "text/html"
+        rv.close()
+
+        # testcase 2 - .css
+        rv = flask.send_file("static/test.css")
+        assert rv.direct_passthrough
+        assert rv.mimetype == "text/css"
+        rv.close()
+
+        # testcase 3 - .json
+        rv = flask.send_file("static/test.json")
+        assert rv.direct_passthrough
+        assert rv.mimetype == "application/json"
+        rv.close()
+
+        # testcase 4 - .ico
+        rv = flask.send_file("static/test.ico")
+        assert rv.direct_passthrough
+        assert rv.mimetype == "image/x-icon"
+        rv.close()
+
+        # testcase 5 - .gif
+        rv = flask.send_file("static/test.gif")
+        assert rv.direct_passthrough
+        assert rv.mimetype == "image/gif"
+
         # testcase 6 - .jpeg
         rv = flask.send_file("static/test.jpeg")
         assert rv.direct_passthrough
@@ -103,7 +310,6 @@ class TestSendfile:
         with app.open_resource("static/index.html") as f:
             rv.direct_passthrough = False
             assert rv.data == f.read()
-
         rv.close()
 
 
@@ -112,10 +318,10 @@ class TestHelpers:
         "debug, expected_flag, expected_default_flag",
         [
             ("", False, False),
-            ("0", False, False),
-            ("False", False, False),
-            ("No", False, False),
-            ("True", True, True),
+            ("0", False, False),#FT
+            ("False", False, False),#FT
+            ("No", False, False),#FT
+            ("True", True, True),#TF
         ],
     )
     def test_get_debug_flag(
@@ -132,15 +338,16 @@ class TestHelpers:
         "env, ref_env, debug",
         [
             ("", "production", False),
-            ("production", "production", False),
-            ("development", "development", True),
-            ("other", "other", False),
+            ("production", "production", False),#TFF
+            ("development", "development", True),#FFT
+            ("other", "other", False),#FTF
         ],
     )
     def test_get_env(self, monkeypatch, env, ref_env, debug):
         monkeypatch.setenv("FLASK_ENV", env)
         assert get_debug_flag() == debug
         assert get_env() == ref_env
+
 
     def test_make_response(self):
         app = flask.Flask(__name__)
@@ -173,80 +380,3 @@ class TestHelpers:
             rv = flask.helpers.make_response()
             assert rv.status_code == 200
             assert rv.mimetype == "text/html"
-
-class TestUrlFor:
-    def test_url_for_testcaseTTTFTTT(self, app, req_ctx):
-        @app.route("/hello", methods = ["POST"])
-        def hello():
-            return "42"
-        try:
-            flask.url_for("hello", _external=True,
-                          _method="GET", _scheme="http", _anchor="contact")
-        except werkzeug.routing.BuildError:
-            assert True
-        else:
-            assert False
-
-        try:
-            flask.url_for("hello", name="test_x",  _external=True,
-                          _method="GET", _scheme="http", _anchor="contact")
-        except werkzeug.routing.BuildError:
-            assert True
-        else:
-            assert False
-
-    def test_url_for_testcaseTTTTFTT(self, app, req_ctx):
-        @app.route("/hello", methods = ["POST"])
-        def hello():
-            return "42"
-        assert(
-            flask.url_for("hello", _external=True,
-                          _method="POST", _scheme="http", _anchor=None)
-            == "http://localhost/hello"
-        )
-
-        assert(
-            flask.url_for("hello", name = "test_x", _external=True,
-                          _method="POST", _scheme="http", _anchor=None)
-            == "http://localhost/hello?name=test_x"
-        )
-
-    def test_url_for_testcase9(self, app, req_ctx):
-        @app.route("/hello", methods = ["POST"])
-        def hello():
-            return "42"
-        assert(
-            flask.url_for("hello", name = "test_x",
-                          _method="POST")
-            == "/hello?name=test_x"
-        )
-    
-    def test_url_for_testcase10(self, app, req_ctx):
-        @app.route("/hello", methods = ["POST"])
-        def hello():
-            return "42"
-        assert(
-            flask.url_for("hello", _external = True,
-                          name = "test_x")
-            == "http://localhost/hello?name=test_x"
-        )
-
-    def test_url_for_testcase11(self, app, req_ctx):
-        @app.route("/hello", methods = ["POST"])
-        def hello():
-            return "42"
-        assert(
-            flask.url_for("hello", _external = True,
-                          name = "test_x", _method = "POST", _anchor = "contact")
-            == "http://localhost/hello?name=test_x#contact"
-        )
-    
-    def test_url_for_testcase12(self, app, req_ctx):
-        @app.route("/hello", methods = ["POST"])
-        def hello():
-            return "42"
-        assert(
-            flask.url_for("hello",
-                          name = "test_x", _method = "POST", _anchor = "contact")
-            == "/hello?name=test_x#contact"
-        )
