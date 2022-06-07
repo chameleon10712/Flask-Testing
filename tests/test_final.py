@@ -83,7 +83,81 @@ class TestUrlFor:
                           _method="POST", _scheme=None, _anchor="contact")
             == "http://localhost/hello?name=test_x#contact"
         )
+    def test_url_for_testcaseTTTFTTT(self, app, req_ctx):
+        @app.route("/hello", methods = ["POST"])
+        def hello():
+            return "42"
+        try:
+            flask.url_for("hello", _external=True,
+                          _method="GET", _scheme="http", _anchor="contact")
+        except werkzeug.routing.BuildError:
+            assert True
+        else:
+            assert False
 
+        try:
+            flask.url_for("hello", name="test_x",  _external=True,
+                          _method="GET", _scheme="http", _anchor="contact")
+        except werkzeug.routing.BuildError:
+            assert True
+        else:
+            assert False
+
+    def test_url_for_testcaseTTTTFTT(self, app, req_ctx):
+        @app.route("/hello", methods = ["POST"])
+        def hello():
+            return "42"
+        assert(
+            flask.url_for("hello", _external=True,
+                          _method="POST", _scheme="http", _anchor=None)
+            == "http://localhost/hello"
+        )
+
+        assert(
+            flask.url_for("hello", name = "test_x", _external=True,
+                          _method="POST", _scheme="http", _anchor=None)
+            == "http://localhost/hello?name=test_x"
+        )
+
+    def test_url_for_testcase9(self, app, req_ctx):
+        @app.route("/hello", methods = ["POST"])
+        def hello():
+            return "42"
+        assert(
+            flask.url_for("hello", name = "test_x",
+                          _method="POST")
+            == "/hello?name=test_x"
+        )
+    
+    def test_url_for_testcase10(self, app, req_ctx):
+        @app.route("/hello", methods = ["POST"])
+        def hello():
+            return "42"
+        assert(
+            flask.url_for("hello", _external = True,
+                          name = "test_x")
+            == "http://localhost/hello?name=test_x"
+        )
+
+    def test_url_for_testcase11(self, app, req_ctx):
+        @app.route("/hello", methods = ["POST"])
+        def hello():
+            return "42"
+        assert(
+            flask.url_for("hello", _external = True,
+                          name = "test_x", _method = "POST", _anchor = "contact")
+            == "http://localhost/hello?name=test_x#contact"
+        )
+    
+    def test_url_for_testcase12(self, app, req_ctx):
+        @app.route("/hello", methods = ["POST"])
+        def hello():
+            return "42"
+        assert(
+            flask.url_for("hello",
+                          name = "test_x", _method = "POST", _anchor = "contact")
+            == "/hello?name=test_x#contact"
+        )
 
 class TestIsIp:
     def test_FTF(self):
