@@ -89,7 +89,7 @@ class TestUrlFor:
         try:
             flask.url_for("hello", _external=True,
                           _method="GET", _scheme="http", _anchor="contact")
-        except werkzeug.routing.BuildError:
+        except BuildError:
             assert True
         else:
             assert False
@@ -97,7 +97,7 @@ class TestUrlFor:
         try:
             flask.url_for("hello", name="test_x",  _external=True,
                           _method="GET", _scheme="http", _anchor="contact")
-        except werkzeug.routing.BuildError:
+        except BuildError:
             assert True
         else:
             assert False
